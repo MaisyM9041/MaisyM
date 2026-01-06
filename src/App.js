@@ -7,7 +7,7 @@ const characters = [
     id: 1,
     name: "Lewis Ramone",
     role: "The Class Clown",
-    description: " Lewis is charismatic, unserious, and far more likeable than his report would suggest. He drifts through his classes with confidence, humour and a belief that things will sort themselves out. While he pretends not to care about failing, he is still quietly aware that coasting has limits, and being in the group might not bother him as much as he would like to claim, giving him somewhere to land without having to admit he needs it. “Apparently ‘potential’ doesn’t actually count if you never use it.”.",
+    description: " Lewis is charismatic, unserious, and far more likeable than his report would suggest. He drifts through his classes with confidence, humour and a belief that things will sort themselves out. While he pretends not to care about failing, he is still quietly aware that coasting has limits, and being in the group might not bother him as much as he would like to claim, giving him somewhere to land without having to admit he needs it.",
     color: "bg-purple-600",
     avatar: "😎"
   },
@@ -31,9 +31,9 @@ const characters = [
     id: 4,
     name: "Mrs Smith",
     role: "The Strictest Teacher in History",
-    description: "To the students, she is an obstacle, a deadline, a voice administering remorseless consequences. She runs her classroom with clear expectations and very little patience for chaos. She isn’t unfair – just consistent, and believes that structure is a form of care.",
+    description: "To the students, she is an obstacle, a deadline, a voice administering remorseless consequences. She runs her classroom with clear expectations and very little patience for chaos. She isn’t unfair, just consistent, and believes that structure is a form of care.",
     color: "bg-orange-500",
-    avatar: "😎🧑‍🎓"
+    avatar: "🧑‍🎓"
   }
 ];
 
@@ -362,7 +362,7 @@ const Navbar = ({ currentPage, setCurrentPage }) => (
       <div className="flex items-center justify-between h-16">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-white rounded flex items-center justify-center">
-            <span className="text-blue-700 font-black text-xl">MHS</span>
+            <span className="text-blue-700 font-black text-xl">CC</span>
           </div>
           <div>
             <h1 className="text-xl font-bold"> Clarendon College</h1>
@@ -446,9 +446,9 @@ const HomePage = ({ setCurrentPage }) => (
               ORIGINAL STUDENT PRODUCTION
             </div>
             <h2 className="text-5xl font-bold mb-4">Group Project</h2>
-            <p className="text-xl text-blue-100 mb-2">A  High Original Series</p>
+            <p className="text-xl text-blue-100 mb-2">A Clarendon Original Series</p>
             <p className="text-lg leading-relaxed mb-6">
-              Follows a mismatched group of students who end up in the same after-school tutor group to salvage their grades. What starts as a reluctant arrangement turns into an unfolding saga of chaotic teamwork, failed schemes and accidental bonding.
+             Follows a mismatched group of students who end up in the same after-school tutor group to salvage their grades. What starts as a reluctant arrangement turns into an unfolding saga of chaotic teamwork, failed schemes and accidental bonding.
             </p>
             <div className="flex gap-4">
               <button className="bg-white text-blue-700 px-6 py-3 rounded font-bold hover:bg-blue-50 transition-colors">
@@ -651,7 +651,7 @@ const ProfilesPage = () => {
 
       {/* Fun Facts Grid */}
       <section className="max-w-7xl mx-auto px-4 py-16">
-        <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">Cast Fun Facts</h3>
+        <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">Character Quotes</h3>
         <div className="grid md:grid-cols-2 gap-6">
           {[
             { name: "Lewis", fact: "Apparently ‘potential’ doesn’t actually count if you never use it", color: "border-purple-600", bg: "bg-purple-50" },
@@ -690,8 +690,7 @@ const Footer = () => (
         </div>
         <div>
           <h4 className="font-bold mb-3">Contact</h4>
-          <p className="text-gray-400 text-sm">studenttv@high.edu</p>
-          <p className="text-gray-400 text-sm">Room 204, Media Center</p>
+          <p className="text-gray-400 text-sm">studenttv@clarendon.edu</p>
         </div>
       </div>
       <div className="border-t border-gray-800 pt-6 text-center text-gray-500 text-sm">
