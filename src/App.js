@@ -516,7 +516,7 @@ const HomePage = ({ setCurrentPage }) => (
           </div>
           <div className="mt-6 bg-white p-4 rounded-lg">
             <p className="text-sm text-gray-700 leading-relaxed">
-              <strong>About this episode:</strong> After eleven episodes of chaos, the group faces their biggest challenge yet: a final group presentation worth 50% of their final mark. In these final two minutes, watch as their elaborate plan completely unravels in the most spectacular fashion. Everything they've worked for this year comes crashing down.
+              <strong>About this episode:</strong>Despite the intense pressure all year, the group are finally ready for the summer break with their, surprisingly polished, final project – all that’s left is to submit it.
             </p>
           </div>
         </div>
