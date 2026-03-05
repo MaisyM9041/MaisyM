@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/MaisyM/static/css/main.f91912ba.css",
-    "main.js": "/MaisyM/static/js/main.3d9a6e73.js",
+    "main.css": "/MaisyM/static/css/main.f4a626da.css",
+    "main.js": "/MaisyM/static/js/main.22142db7.js",
     "static/js/453.3aced3c9.chunk.js": "/MaisyM/static/js/453.3aced3c9.chunk.js",
     "index.html": "/MaisyM/index.html",
-    "main.f91912ba.css.map": "/MaisyM/static/css/main.f91912ba.css.map",
-    "main.3d9a6e73.js.map": "/MaisyM/static/js/main.3d9a6e73.js.map",
+    "main.f4a626da.css.map": "/MaisyM/static/css/main.f4a626da.css.map",
+    "main.22142db7.js.map": "/MaisyM/static/js/main.22142db7.js.map",
     "453.3aced3c9.chunk.js.map": "/MaisyM/static/js/453.3aced3c9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f91912ba.css",
-    "static/js/main.3d9a6e73.js"
+    "static/css/main.f4a626da.css",
+    "static/js/main.22142db7.js"
   ]
 }
