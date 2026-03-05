@@ -59,7 +59,7 @@ const btsClip = {
   tag: "PRODUCTION"
 };
 
-// Replace with your main season finale YouTube video ID
+// Replace with YouTube video ID
 const YOUTUBE_MAIN_ID = 'YOUTUBE_MAIN_ID';
 
 // ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
@@ -574,9 +574,9 @@ const BTSPage = () => {
           <h3 style={{ color: 'white', fontSize: '22px', fontWeight: 800, marginBottom: '28px' }}>Production Notes</h3>
           <div className="prod-notes-grid">
             {[
-              { title: "Filming Location", body: "All 12 episodes were filmed entirely on location at Clarendon College, using the actual classrooms, library, and corridors you see in the show.", icon: Film },
-              { title: "Production Timeline", body: "The series was written, shot, and edited over the course of one academic year - from initial pitch in September to final cut in June.", icon: Calendar },
-              { title: "The Cast", body: "Every cast member is a current or former Clarendon College student. No professional actors were used - all performances are entirely authentic.", icon: Users }
+              { title: "Filming Location", body: "The finale was filmed entirely on location at Clarendon College, using the actual classrooms, library, and corridors you see in the show.", icon: Film },
+              { title: "Production Timeline", body: "The finale was written, shot, and edited over the course of one academic year, from initial pitch September to final cut.", icon: Calendar },
+              { title: "The Cast", body: "Every cast member is a current or former Clarendon College student. No professional actors were used - all performances are unapologetically authentic.", icon: Users }
             ].map(({ title, body, icon: Icon }, i) => (
               <div key={i} style={{ background: '#0F0F0F', border: '1px solid #1a1a1a', borderRadius: '12px', padding: '24px' }}>
                 <div style={{ color: '#E11D48', marginBottom: '12px' }}><Icon size={22} strokeWidth={1.5} /></div>
