@@ -267,7 +267,7 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
           </div>
           <div>
             <span style={{ color: 'white', fontWeight: 700, fontSize: '15px' }}>Group Project</span>
-            <span style={{ color: '#4B5563', fontSize: '10px', display: 'block', letterSpacing: '0.07em', textTransform: 'uppercase' }}>A Clarendon Original</span>
+            <span style={{ color: '#4B5563', fontSize: '10px', display: 'block', letterSpacing: '0.07em', textTransform: 'uppercase' }}>A Lime Pictures Original</span>
           </div>
         </div>
         <div className="nav-tabs">
@@ -398,7 +398,7 @@ const HomePage = ({ setCurrentPage }) => {
               <span style={{ color: '#E11D48', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Now Streaming - Season Finale</span>
             </div>
             <h1 className="hero-title" style={{ fontWeight: 800, color: 'white', lineHeight: 0.95, letterSpacing: '-0.03em', marginBottom: '18px', fontFamily: FONT }}>Group<br />Project</h1>
-            <p style={{ color: '#6B7280', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>A Clarendon College Original Series</p>
+            <p style={{ color: '#6B7280', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>A Lime Pictures Original Series</p>
             <p style={{ color: '#9CA3AF', fontSize: '16px', lineHeight: '1.75', maxWidth: '440px', marginBottom: '28px' }}>
               A mismatched group of students end up in the same after-school tutor group to salvage their grades. What starts as a reluctant arrangement turns into an unfolding saga of chaotic teamwork, failed schemes, and accidental bonding.
             </p>
@@ -499,7 +499,7 @@ const HomePage = ({ setCurrentPage }) => {
 const ProfilesPage = () => (
   <div style={{ minHeight: '100vh', background: '#080808', fontFamily: FONT }}>
     <section className="page-header-pad" style={{ textAlign: 'center', borderBottom: '1px solid #111', background: 'linear-gradient(180deg, #0D0D0D 0%, #080808 100%)' }}>
-      <p style={{ color: '#4B5563', fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '12px' }}>Clarendon College Original Series</p>
+      <p style={{ color: '#4B5563', fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '12px' }}>Lime Pictures Original Series</p>
       <h2 className="page-header-title" style={{ color: 'white', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '16px' }}>The Study Group</h2>
       <p style={{ color: '#6B7280', fontSize: '15px', maxWidth: '500px', margin: '0 auto', lineHeight: '1.7' }}>Four students who came together to improve their grades. Instead, they created the most chaotic study group in Clarendon history.</p>
     </section>
@@ -603,7 +603,7 @@ const Footer = ({ setCurrentPage }) => (
             </div>
             <span style={{ color: 'white', fontWeight: 700, fontSize: '15px' }}>Group Project</span>
           </div>
-          <p style={{ color: '#374151', fontSize: '13px', lineHeight: '1.7', maxWidth: '300px' }}>An original production from Clarendon College. Season 2 confirmed.</p>
+          <p style={{ color: '#374151', fontSize: '13px', lineHeight: '1.7', maxWidth: '300px' }}>An original production from Lime Pictures. Season 2 confirmed.</p>
         </div>
         <div>
           <h4 style={{ color: '#4B5563', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '14px' }}>Series</h4>
@@ -615,7 +615,7 @@ const Footer = ({ setCurrentPage }) => (
         </div>
       </div>
       <div style={{ borderTop: '1px solid #111', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-        <p style={{ color: '#1F2937', fontSize: '12px' }}>© 2024 Clarendon College. All rights reserved.</p>
+        <p style={{ color: '#1F2937', fontSize: '12px' }}>© 2026 Lime Pictures. All rights reserved.</p>
         <p style={{ color: '#1F2937', fontSize: '12px' }}>A fictional production</p>
       </div>
     </div>
