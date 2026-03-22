@@ -81,10 +81,18 @@ const VIDEOS = {
   bts:  'https://vimeo.com/1176014881?share=copy&fl=sv&fe=ci',
 };
 
-// ── Thumbnail image paths ────────────────────────────────────────────────────
-const THUMBNAILS = {
-  main: '/hero.png',
-  bts:  '/bts.png',
+// ── Vimeo thumbnail hook ─────────────────────────────────────────────────────
+const useVimeoThumbnail = (vimeoUrl) => {
+  const [thumb, setThumb] = useState(null);
+  useEffect(() => {
+    if (!vimeoUrl) return;
+    const id = vimeoUrl.replace(/.*vimeo\.com\//, '').replace(/[^0-9]/g, '');
+    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}`)
+      .then(r => r.json())
+      .then(d => setThumb(d.thumbnail_url))
+      .catch(() => {});
+  }, [vimeoUrl]);
+  return thumb;
 };
 
 // ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
@@ -388,8 +396,8 @@ const AnnouncementCard = ({ title, date, category, description, accent }) => (
 
 // ─── HERO THUMBNAIL ───────────────────────────────────────────────────────────
 const HeroThumb = ({ onClick }) => {
+  const thumb = useVimeoThumbnail(VIDEOS.main);
   const [hovered, setHovered] = useState(false);
-  const [imgError, setImgError] = useState(false);
   return (
     <div
       onClick={onClick}
@@ -397,12 +405,9 @@ const HeroThumb = ({ onClick }) => {
       onMouseLeave={() => setHovered(false)}
       style={{
         aspectRatio: '16/9',
-        background: imgError
-          ? `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`
-          : undefined,
-        backgroundImage: !imgError ? `url(${THUMBNAILS.main})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        background: thumb
+        ? `center / cover no-repeat url(${thumb})`
+        : `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`,
         borderRadius: '16px',
         overflow: 'hidden',
         cursor: 'pointer',
@@ -412,13 +417,6 @@ const HeroThumb = ({ onClick }) => {
         transition: 'all 0.2s',
         transform: hovered ? 'translate(-3px,-3px)' : 'translate(0,0)',
       }}>
-      {/* Hidden img tag to detect load errors */}
-      <img
-        src={THUMBNAILS.main}
-        alt=""
-        onError={() => setImgError(true)}
-        style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
-      />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(14,27,46,0.42)' }} />
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
         <div style={{
@@ -444,7 +442,7 @@ const HeroThumb = ({ onClick }) => {
 // ─── BTS CARD ─────────────────────────────────────────────────────────────────
 const BTSCard = ({ clip, onPlay }) => {
   const [hovered, setHovered] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const thumb = useVimeoThumbnail(VIDEOS.bts);
   return (
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="card-lift"
       style={{ background: C.white, border: `2px solid ${hovered ? C.blue : C.blueMid}`, borderRadius: '16px', overflow: 'hidden', boxShadow: hovered ? `5px 5px 0 ${C.blue}` : `3px 3px 0 ${C.blueMid}` }}>
@@ -452,24 +450,14 @@ const BTSCard = ({ clip, onPlay }) => {
         onClick={() => onPlay(clip)}
         style={{
           height: '280px',
-          background: imgError
-            ? `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`
-            : undefined,
-          backgroundImage: !imgError ? `url(${THUMBNAILS.bts})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background: thumb
+            ? `center / cover no-repeat url(${thumb})`
+            : `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', position: 'relative', overflow: 'hidden',
         }}>
-        {/* Hidden img tag to detect load errors */}
-        <img
-          src={THUMBNAILS.bts}
-          alt=""
-          onError={() => setImgError(true)}
-          style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
-        />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(14,27,46,0.48)' }} />
-        {imgError && <Film size={80} color="rgba(255,255,255,0.06)" style={{ position: 'absolute' }} />}
+        {!thumb && <Film size={80} color="rgba(255,255,255,0.06)" style={{ position: 'absolute' }} />}
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: '60px', height: '60px', borderRadius: '50%',
@@ -523,15 +511,15 @@ const HomePage = ({ setCurrentPage }) => {
 A mismatched group of students end up in the same after-school tutor group to salvage
 their grades. What starts as a reluctant arrangement turns into an unfolding saga of
 chaotic teamwork, failed schemes, and accidental bonding.
-<br><br></br></br>
+<br /><br />
 Set in a secondary school in North England, Group Project follows Sophie, Lewis and
 Hollie as they navigate the experiences of the school system, with each episode finding
 them in a unique chaotic situation. The progress they are promised often feels
-inconsistent and the students' different attitudes and expectations towards education
+inconsistent and the students’ different attitudes and expectations towards education
 quickly clash.
-<br><br></br></br>
+<br /><br />
 The series blends sharp comedy with a grounded coming-of-age narrative, exploring the
-pressures and expectations placed on teenagers that don't always feel realistic. The
+pressures and expectations placed on teenagers that don’t always feel realistic. The
 group are struggling personally as well as academically, and all dealing with trying to
 understand their own goals and identities, and the show focuses on how these journeys
 are shaped by their academic experiences and connections with each other. Watch as
