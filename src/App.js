@@ -87,7 +87,7 @@ const useVimeoThumbnail = (vimeoUrl) => {
   useEffect(() => {
     if (!vimeoUrl) return;
     const id = vimeoUrl.replace(/.*vimeo\.com\//, '').replace(/[^0-9]/g, '');
-    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}`)
+    fetch(`/api/vimeo-thumb?id=${id}`)
       .then(r => r.json())
       .then(d => setThumb(d.thumbnail_url))
       .catch(() => {});
