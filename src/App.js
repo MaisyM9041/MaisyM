@@ -508,11 +508,23 @@ const HomePage = ({ setCurrentPage }) => {
             <h1 className="hero-title" style={{ fontWeight: 900, color: C.blue, lineHeight: 0.9, letterSpacing: '-0.03em', marginBottom: '22px', fontFamily: FONT }}>Project</h1>
             <p style={{ color: C.blue, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>A Bwark Productions Original Series</p>
             <p style={{ color: C.body, fontSize: '15px', lineHeight: '1.8', maxWidth: '440px', marginBottom: '28px' }}>
-              A mismatched group of students end up in the same after-school tutor group to salvage their grades. What starts as a reluctant arrangement turns into an unfolding saga of chaotic teamwork, failed schemes, and accidental bonding.
-              <br /><br />
-              Set in a secondary school in North England, Group Project follows Sophie, Lewis and Hollie as they navigate the experiences of the school system, with each episode finding them in a unique chaotic situation.
-              <br /><br />
-              The series blends sharp comedy with a grounded coming-of-age narrative. Watch as the year unfolds, as shared conflicts begin to form something close to a friendship, even if none of them are willing to admit it.
+A mismatched group of students end up in the same after-school tutor group to salvage
+their grades. What starts as a reluctant arrangement turns into an unfolding saga of
+chaotic teamwork, failed schemes, and accidental bonding.
+<br><br></br></br>
+Set in a secondary school in North England, Group Project follows Sophie, Lewis and
+Hollie as they navigate the experiences of the school system, with each episode finding
+them in a unique chaotic situation. The progress they are promised often feels
+inconsistent and the students’ different attitudes and expectations towards education
+quickly clash.
+<br><br></br></br>
+The series blends sharp comedy with a grounded coming-of-age narrative, exploring the
+pressures and expectations placed on teenagers that don’t always feel realistic. The
+group are struggling personally as well as academically, and all dealing with trying to
+understand their own goals and identities, and the show focuses on how these journeys
+are shaped by their academic experiences and connections with each other. Watch as
+the year unfolds, as shared conflicts begin to form something close to a friendship, even
+if none of them are willing to admit it.
             </p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <button className="btn-yellow" onClick={() => setModal({ src: VIDEOS.main, title: 'Episode 12 — Final Draft' })}>
@@ -575,10 +587,10 @@ const HomePage = ({ setCurrentPage }) => {
           <p style={{ color: C.blue, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '8px', fontFamily: FONT }}>Updates</p>
           <h3 style={{ color: C.ink, fontSize: '24px', fontWeight: 900, marginBottom: '28px', fontFamily: FONT }}>Announcements</h3>
           <div className="announcements-grid">
-            <AnnouncementCard title="Season Finale Now Streaming" date="Dec 15, 2024" category="NEW EPISODE" description="The final two minutes are here. Watch as everything spectacularly falls apart in the season's most chaotic finale." accent={C.blue} />
-            <AnnouncementCard title="Cast Q&A This Friday" date="Dec 20, 2024" category="EVENT" description="Join us for a live Q&A with the cast. Bring your questions about the season finale." accent="#10B981" />
-            <AnnouncementCard title="Behind the Scenes Feature" date="Dec 10, 2024" category="EXCLUSIVE" description="Go behind the scenes of the season finale and learn how we filmed the most elaborate disaster sequence." accent="#8B5CF6" />
-            <AnnouncementCard title="Season 2 Confirmed" date="Dec 5, 2024" category="NEWS" description="Due to popular demand, Group Project will return for a second season next autumn. More chaos coming soon." accent="#D4A900" />
+            <AnnouncementCard title="Season Finale Now Streaming" date="Dec 15, 2025" category="NEW EPISODE" description="The final two minutes are here. Watch as everything spectacularly falls apart in the season's most chaotic finale." accent={C.blue} />
+            <AnnouncementCard title="Cast Q&A This Friday" date="Dec 20, 2025" category="EVENT" description="Join us for a live Q&A with the cast. Bring your questions about the season finale." accent="#10B981" />
+            <AnnouncementCard title="Behind the Scenes Feature" date="Dec 10, 2025" category="EXCLUSIVE" description="Go behind the scenes of the season finale and learn how we filmed the most elaborate disaster sequence." accent="#8B5CF6" />
+            <AnnouncementCard title="Season 2 Confirmed" date="Dec 5, 2025" category="NEWS" description="Due to popular demand, Group Project will return for a second season next autumn. More chaos coming soon." accent="#D4A900" />
           </div>
         </div>
       </section>
@@ -592,7 +604,7 @@ const ProfilesPage = () => (
     <section className="page-header-pad" style={{ textAlign: 'center', borderBottom: `3px solid ${C.yellow}`, background: C.yellow }}>
       <p style={{ color: C.ink, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '12px' }}>Bwark Productions Original Series</p>
       <h2 className="page-header-title" style={{ color: C.ink, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '16px' }}>The Study Group</h2>
-      <p style={{ color: C.ink, fontSize: '15px', maxWidth: '500px', margin: '0 auto', lineHeight: '1.7', opacity: 0.75 }}>Four students who came together to improve their grades. Instead, they created the most chaotic study group in school history.</p>
+      <p style={{ color: C.ink, fontSize: '15px', maxWidth: '500px', margin: '0 auto', lineHeight: '1.7', opacity: 0.75 }}>Three students who came together to improve their grades. Instead, they created the most chaotic study group in school history.</p>
     </section>
 
     <section className="section-pad" style={{ background: C.bg }}>
