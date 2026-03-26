@@ -61,9 +61,9 @@ const characters = [
 ];
 
 const episodes = [
-  { number: 10, title: "The Library Lockdown", description: "The group accidentally gets locked in the library overnight and discovers the conspiracy was real all along.", color: "#1D4ED8" },
-  { number: 11, title: "Cafeteria Chronicles", description: "Sophie runs for student council while Lewis becomes unexpectedly invested in how he's perceived outside the study group, leading to some questionably uncharacteristic choices.", color: "#065F46" },
-  { number: 12, title: "Final Draft", description: "The season finale. The final presentation. The ultimate chaos. Everything goes wrong in the best way possible.", color: "#6D28D9", featured: true }
+  { number: 10, title: "The Library Lockdown", description: "The group accidentally gets locked in the library overnight and discovers the conspiracy was real all along.", color: "#1D4ED8", image: "/x3.jpg" },
+  { number: 11, title: "Cafeteria Chronicles", description: "Sophie runs for student council while Lewis becomes unexpectedly invested in how he's perceived outside the study group, leading to some questionably uncharacteristic choices.", color: "#065F46", image: "/2.png" },
+  { number: 12, title: "Final Draft", description: "The season finale. The final presentation. The ultimate chaos. Everything goes wrong in the best way possible.", color: "#6D28D9", featured: true, image: "/1.png" }
 ];
 
 const btsClip = {
@@ -81,25 +81,74 @@ const VIDEOS = {
   bts:  'https://vimeo.com/1176014881?share=copy&fl=sv&fe=ci',
 };
 
-// ── Vimeo thumbnail hook ─────────────────────────────────────────────────────
-const useVimeoThumbnail = (vimeoUrl) => {
-  const [thumb, setThumb] = useState(null);
-  useEffect(() => {
-    if (!vimeoUrl) return;
-    const id = vimeoUrl.replace(/.*vimeo\.com\//, '').replace(/[^0-9]/g, '');
-    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}`)
-      .then(r => r.json())
-      .then(d => setThumb(d.thumbnail_url))
-      .catch(() => {});
-  }, [vimeoUrl]);
-  return thumb;
+// ── Thumbnail image paths ────────────────────────────────────────────────────
+const THUMBNAILS = {
+  main: '/thumbnail-main.jpg',
+  bts:  '/thumbnail-bts.jpg',
 };
 
 // ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
 const GlobalStyles = () => (
   <style>{`
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: ${C.bg}; font-family: ${FONT}; }
+
+    body {
+      font-family: ${FONT};
+      background-color: #F9F7F2;
+      background-image:
+        linear-gradient(to right, transparent 71px, rgba(210,40,40,0.32) 71px, rgba(210,40,40,0.32) 73px, transparent 73px),
+        repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 31px,
+          rgba(100,130,200,0.12) 31px,
+          rgba(100,130,200,0.12) 32px
+        );
+      background-attachment: fixed;
+    }
+
+    /* Noise overlay — SVG feTurbulence rendered as a fixed pseudo-element */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.038;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 300px 300px;
+    }
+
+    /* Push all content to the right of the margin line */
+    #root {
+      padding-left: 88px;
+    }
+
+    /* Sticky nav and news ticker span the full width including the margin gutter,
+       but their inner content still starts after the margin */
+    nav, .ticker-bar {
+      margin-left: -88px;
+      padding-left: 88px;
+    }
+
+    /* Footer spans full width too */
+    footer {
+      margin-left: -88px;
+      padding-left: calc(88px + 16px) !important;
+    }
+
+    @media (max-width: 768px) {
+      #root { padding-left: 56px; }
+      nav, .ticker-bar { margin-left: -56px; padding-left: 56px; }
+      footer { margin-left: -56px; padding-left: calc(56px + 16px) !important; }
+    }
+
+    @media (max-width: 480px) {
+      #root { padding-left: 44px; }
+      nav, .ticker-bar { margin-left: -44px; padding-left: 44px; }
+      footer { margin-left: -44px; padding-left: calc(44px + 16px) !important; }
+    }
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
@@ -154,6 +203,7 @@ const GlobalStyles = () => (
     @media (max-width: 768px) {
       .nav-tab-label { display: none; }
       .nav-tabs { gap: 2px; }
+      .nav-socials { display: none !important; }
       .hero-grid { grid-template-columns: 1fr; gap: 32px; padding: 48px 16px 56px; }
       .hero-title { font-size: 48px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -244,7 +294,7 @@ const NewsTicker = () => {
   }, []);
   const items = ["New Episode Every Thursday", "Season Finale Now Streaming", "Winner: Best Comedy Ensemble", "Behind the Scenes Exclusive", "Season 2 Confirmed"];
   return (
-    <div style={{ background: C.yellow, borderBottom: `2px solid ${C.yellowDark}`, overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
+    <div className="ticker-bar" style={{ background: C.yellow, borderBottom: `2px solid ${C.yellowDark}`, overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
       <div style={{ background: C.ink, color: C.yellow, padding: '7px 14px', fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em', whiteSpace: 'nowrap', flexShrink: 0, fontFamily: FONT }}>★ LATEST</div>
       <div style={{ overflow: 'hidden', flex: 1, padding: '7px 0' }}>
         <div style={{ display: 'flex', gap: '48px', whiteSpace: 'nowrap', transform: `translateX(${offset}px)` }}>
@@ -314,21 +364,74 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
             <span style={{ color: C.blue, fontSize: '10px', display: 'block', letterSpacing: '0.07em', textTransform: 'uppercase', fontWeight: 600 }}>A Bwark Productions Original</span>
           </div>
         </div>
-        <div className="nav-tabs">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <button key={id} onClick={() => setCurrentPage(id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px',
-                borderRadius: '8px', border: currentPage === id ? `2px solid ${C.blue}` : '2px solid transparent',
-                cursor: 'pointer', fontWeight: 700, fontSize: '13px', fontFamily: FONT,
-                transition: 'all 0.15s',
-                background: currentPage === id ? C.blueLight : 'transparent',
-                color: currentPage === id ? C.blue : C.muted,
-              }}>
-              <Icon size={15} />
-              <span className="nav-tab-label">{label}</span>
-            </button>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Social icons */}
+          <div className="nav-socials" style={{ display: 'flex', alignItems: 'center', gap: '4px', borderRight: `2px solid ${C.blueMid}`, paddingRight: '10px' }}>
+            {[
+              {
+                title: 'Instagram', color: '#E1306C',
+                icon: (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                )
+              },
+              {
+                title: 'TikTok', color: '#010101',
+                icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+                  </svg>
+                )
+              },
+              {
+                title: 'YouTube', color: '#FF0000',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
+                  </svg>
+                )
+              },
+              {
+                title: 'X / Twitter', color: '#000000',
+                icon: (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                )
+              },
+            ].map(({ title, color, icon }) => (
+              <button key={title} title={title}
+                style={{
+                  width: '30px', height: '30px', borderRadius: '7px',
+                  border: `2px solid ${C.blueMid}`, background: 'transparent',
+                  color: C.muted,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s', flexShrink: 0, padding: 0,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = color; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = color; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.muted; e.currentTarget.style.borderColor = C.blueMid; }}
+              >{icon}</button>
+            ))}
+          </div>
+          {/* Nav tabs */}
+          <div className="nav-tabs">
+            {tabs.map(({ id, label, icon: Icon }) => (
+              <button key={id} onClick={() => setCurrentPage(id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px',
+                  borderRadius: '8px', border: currentPage === id ? `2px solid ${C.blue}` : '2px solid transparent',
+                  cursor: 'pointer', fontWeight: 700, fontSize: '13px', fontFamily: FONT,
+                  transition: 'all 0.15s',
+                  background: currentPage === id ? C.blueLight : 'transparent',
+                  color: currentPage === id ? C.blue : C.muted,
+                }}>
+                <Icon size={15} />
+                <span className="nav-tab-label">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </nav>
@@ -338,14 +441,34 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
 // ─── EPISODE CARD ─────────────────────────────────────────────────────────────
 const EpisodeCard = ({ ep }) => {
   const [hovered, setHovered] = useState(false);
+  const [imgError, setImgError] = useState(false);
   return (
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="card-lift"
-      style={{ background: C.white, border: `2px solid ${hovered ? C.blue : C.blueMid}`, borderRadius: '14px', overflow: 'hidden', boxShadow: hovered ? `5px 5px 0 ${C.blue}` : `3px 3px 0 ${C.blueMid}`, position: 'relative' }}>
-      {ep.featured && <div style={{ position: 'absolute', top: '12px', right: '12px', background: C.yellow, color: C.ink, fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.1em', zIndex: 2, border: `1px solid ${C.yellowDark}` }}>FINALE</div>}
-      <div style={{ background: ep.color, height: '8px' }} />
-      <div style={{ padding: '18px 20px 20px' }}>
-        <span style={{ color: C.muted, fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', fontFamily: FONT, display: 'block', marginBottom: '6px' }}>EP. {ep.number}</span>
-        <h4 style={{ color: C.ink, fontWeight: 800, fontSize: '16px', marginBottom: '8px', fontFamily: FONT }}>{ep.title}</h4>
+      style={{ background: C.white, border: `2px solid ${hovered ? C.blue : C.blueMid}`, borderRadius: '14px', overflow: 'hidden', boxShadow: hovered ? `5px 5px 0 ${C.blue}` : `3px 3px 0 ${C.blueMid}`, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+      {ep.featured && <div style={{ position: 'absolute', top: '12px', right: '12px', background: C.yellow, color: C.ink, fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.1em', zIndex: 3, border: `1px solid ${C.yellowDark}` }}>FINALE</div>}
+
+      {/* Thumbnail */}
+      <div style={{ position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+        {!imgError ? (
+          <img
+            src={ep.image}
+            alt={ep.title}
+            onError={() => setImgError(true)}
+            style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease', transform: hovered ? 'scale(1.04)' : 'scale(1)' }}
+          />
+        ) : (
+          <div style={{ width: '100%', aspectRatio: '16/9', background: `linear-gradient(135deg, ${ep.color} 0%, ${ep.color}99 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Film size={36} color="rgba(255,255,255,0.25)" />
+          </div>
+        )}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '4px', background: ep.color }} />
+        <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(14,27,46,0.82)', borderRadius: '6px', padding: '3px 10px', backdropFilter: 'blur(4px)' }}>
+          <span style={{ color: 'white', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', fontFamily: FONT }}>EP. {ep.number}</span>
+        </div>
+      </div>
+
+      <div style={{ padding: '16px 18px 20px' }}>
+        <h4 style={{ color: C.ink, fontWeight: 800, fontSize: '15px', marginBottom: '7px', fontFamily: FONT }}>{ep.title}</h4>
         <p style={{ color: C.body, fontSize: '13px', lineHeight: '1.65', fontFamily: FONT }}>{ep.description}</p>
       </div>
     </div>
@@ -396,8 +519,8 @@ const AnnouncementCard = ({ title, date, category, description, accent }) => (
 
 // ─── HERO THUMBNAIL ───────────────────────────────────────────────────────────
 const HeroThumb = ({ onClick }) => {
-  const thumb = useVimeoThumbnail(VIDEOS.main);
   const [hovered, setHovered] = useState(false);
+  const [imgError, setImgError] = useState(false);
   return (
     <div
       onClick={onClick}
@@ -405,9 +528,12 @@ const HeroThumb = ({ onClick }) => {
       onMouseLeave={() => setHovered(false)}
       style={{
         aspectRatio: '16/9',
-        background: thumb
-        ? `center / cover no-repeat url(${thumb})`
-        : `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`,
+        background: imgError
+          ? `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`
+          : undefined,
+        backgroundImage: !imgError ? `url(${THUMBNAILS.main})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         borderRadius: '16px',
         overflow: 'hidden',
         cursor: 'pointer',
@@ -417,6 +543,13 @@ const HeroThumb = ({ onClick }) => {
         transition: 'all 0.2s',
         transform: hovered ? 'translate(-3px,-3px)' : 'translate(0,0)',
       }}>
+      {/* Hidden img tag to detect load errors */}
+      <img
+        src={THUMBNAILS.main}
+        alt=""
+        onError={() => setImgError(true)}
+        style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+      />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(14,27,46,0.42)' }} />
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
         <div style={{
@@ -442,7 +575,7 @@ const HeroThumb = ({ onClick }) => {
 // ─── BTS CARD ─────────────────────────────────────────────────────────────────
 const BTSCard = ({ clip, onPlay }) => {
   const [hovered, setHovered] = useState(false);
-  const thumb = useVimeoThumbnail(VIDEOS.bts);
+  const [imgError, setImgError] = useState(false);
   return (
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="card-lift"
       style={{ background: C.white, border: `2px solid ${hovered ? C.blue : C.blueMid}`, borderRadius: '16px', overflow: 'hidden', boxShadow: hovered ? `5px 5px 0 ${C.blue}` : `3px 3px 0 ${C.blueMid}` }}>
@@ -450,14 +583,24 @@ const BTSCard = ({ clip, onPlay }) => {
         onClick={() => onPlay(clip)}
         style={{
           height: '280px',
-          background: thumb
-            ? `center / cover no-repeat url(${thumb})`
-            : `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`,
+          background: imgError
+            ? `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`
+            : undefined,
+          backgroundImage: !imgError ? `url(${THUMBNAILS.bts})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', position: 'relative', overflow: 'hidden',
         }}>
+        {/* Hidden img tag to detect load errors */}
+        <img
+          src={THUMBNAILS.bts}
+          alt=""
+          onError={() => setImgError(true)}
+          style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+        />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(14,27,46,0.48)' }} />
-        {!thumb && <Film size={80} color="rgba(255,255,255,0.06)" style={{ position: 'absolute' }} />}
+        {imgError && <Film size={80} color="rgba(255,255,255,0.06)" style={{ position: 'absolute' }} />}
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: '60px', height: '60px', borderRadius: '50%',
@@ -488,11 +631,11 @@ const BTSCard = ({ clip, onPlay }) => {
 const HomePage = ({ setCurrentPage }) => {
   const [modal, setModal] = useState(null);
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: FONT }}>
+    <div style={{ minHeight: '100vh', background: 'transparent', fontFamily: FONT }}>
       {modal && <VideoModal src={modal.src} title={modal.title} onClose={() => setModal(null)} />}
 
       {/* Hero */}
-      <section style={{ background: C.bg, borderBottom: `3px solid ${C.yellow}` }}>
+      <section style={{ background: 'transparent', borderBottom: `3px solid ${C.yellow}` }}>
         <div className="hero-grid">
           <div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
@@ -505,7 +648,8 @@ const HomePage = ({ setCurrentPage }) => {
               </div>
             </div>
             <h1 className="hero-title" style={{ fontWeight: 900, color: C.ink, lineHeight: 0.9, letterSpacing: '-0.03em', marginBottom: '6px', fontFamily: FONT }}>Group</h1>
-            <h1 className="hero-title" style={{ fontWeight: 900, color: C.blue, lineHeight: 0.9, letterSpacing: '-0.03em', marginBottom: '22px', fontFamily: FONT }}>Project</h1>
+            <h1 className="hero-title" style={{ fontWeight: 900, color: C.blue, lineHeight: 0.9, letterSpacing: '-0.03em', marginBottom: '18px', fontFamily: FONT }}>Project</h1>
+            <p style={{ color: C.ink, fontSize: '16px', fontWeight: 700, fontStyle: 'italic', fontFamily: FONT_SERIF, marginBottom: '16px', letterSpacing: '0.01em' }}>"They can't work together. They can't work alone either."</p>
             <p style={{ color: C.blue, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>A Bwark Productions Original Series</p>
             <p style={{ color: C.body, fontSize: '15px', lineHeight: '1.8', maxWidth: '440px', marginBottom: '28px' }}>
 A mismatched group of students end up in the same after-school tutor group to salvage
@@ -515,11 +659,11 @@ chaotic teamwork, failed schemes, and accidental bonding.
 Set in a secondary school in North England, Group Project follows Sophie, Lewis and
 Hollie as they navigate the experiences of the school system, with each episode finding
 them in a unique chaotic situation. The progress they are promised often feels
-inconsistent and the students’ different attitudes and expectations towards education
+inconsistent and the students' different attitudes and expectations towards education
 quickly clash.
 <br /><br />
 The series blends sharp comedy with a grounded coming-of-age narrative, exploring the
-pressures and expectations placed on teenagers that don’t always feel realistic. The
+pressures and expectations placed on teenagers that don't always feel realistic. The
 group are struggling personally as well as academically, and all dealing with trying to
 understand their own goals and identities, and the show focuses on how these journeys
 are shaped by their academic experiences and connections with each other. Watch as
@@ -557,7 +701,7 @@ if none of them are willing to admit it.
       </section>
 
       {/* Finale synopsis */}
-      <section className="section-pad" style={{ borderBottom: `2px solid ${C.blueMid}`, background: C.bg }}>
+      <section className="section-pad" style={{ borderBottom: `2px solid ${C.blueMid}`, background: 'transparent' }}>
         <div style={{ maxWidth: '680px', margin: '0 auto', textAlign: 'center' }}>
           <p style={{ color: C.blue, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '12px', fontFamily: FONT }}>Season Finale</p>
           <h3 style={{ color: C.ink, fontSize: '30px', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: '16px', fontFamily: FONT }}>Episode 12: Final Draft</h3>
@@ -566,7 +710,7 @@ if none of them are willing to admit it.
       </section>
 
       {/* Episodes */}
-      <section className="section-pad" style={{ borderBottom: `2px solid ${C.blueMid}`, background: C.bgSection }}>
+      <section className="section-pad" style={{ borderBottom: `2px solid ${C.blueMid}`, background: 'rgba(237,233,225,0.55)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '32px', gap: '16px' }}>
             <div>
@@ -582,7 +726,7 @@ if none of them are willing to admit it.
       </section>
 
       {/* Announcements */}
-      <section className="section-pad" style={{ background: C.bg }}>
+      <section className="section-pad" style={{ background: 'transparent' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <p style={{ color: C.blue, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '8px', fontFamily: FONT }}>Updates</p>
           <h3 style={{ color: C.ink, fontSize: '24px', fontWeight: 900, marginBottom: '28px', fontFamily: FONT }}>Announcements</h3>
@@ -600,14 +744,14 @@ if none of them are willing to admit it.
 
 // ─── PROFILES PAGE ────────────────────────────────────────────────────────────
 const ProfilesPage = () => (
-  <div style={{ minHeight: '100vh', background: C.bg, fontFamily: FONT }}>
+  <div style={{ minHeight: '100vh', background: 'transparent', fontFamily: FONT }}>
     <section className="page-header-pad" style={{ textAlign: 'center', borderBottom: `3px solid ${C.yellow}`, background: C.yellow }}>
       <p style={{ color: C.ink, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '12px' }}>Bwark Productions Original Series</p>
       <h2 className="page-header-title" style={{ color: C.ink, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '16px' }}>The Study Group</h2>
       <p style={{ color: C.ink, fontSize: '15px', maxWidth: '500px', margin: '0 auto', lineHeight: '1.7', opacity: 0.75 }}>Three students who came together to improve their grades. Instead, they created the most chaotic study group in school history.</p>
     </section>
 
-    <section className="section-pad" style={{ background: C.bg }}>
+    <section className="section-pad" style={{ background: 'transparent' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         <div className="characters-grid">
           {characters.map(c => <CharacterCard key={c.id} character={c} />)}
@@ -615,7 +759,7 @@ const ProfilesPage = () => (
       </div>
     </section>
 
-    <section style={{ padding: '0 16px 60px', background: C.bg }}>
+    <section style={{ padding: '0 16px 60px', background: 'transparent' }}>
       <div style={{ maxWidth: '860px', margin: '0 auto', background: C.yellowLight, border: `3px solid ${C.yellowDark}`, borderRadius: '16px', boxShadow: `6px 6px 0 ${C.yellowDark}` }}>
         <div className="dysfunction-box">
           <h3 style={{ color: C.ink, fontSize: '22px', fontWeight: 900, textAlign: 'center', marginBottom: '20px' }}>The Perfect Storm of Dysfunction</h3>
@@ -630,7 +774,7 @@ const ProfilesPage = () => (
       </div>
     </section>
 
-    <section className="section-pad" style={{ paddingTop: 0, background: C.bgSection }}>
+    <section className="section-pad" style={{ paddingTop: 0, background: 'rgba(237,233,225,0.55)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         <h3 style={{ color: C.ink, fontSize: '24px', fontWeight: 900, textAlign: 'center', marginBottom: '28px' }}>Character Quotes</h3>
         <div className="quotes-grid">
@@ -655,7 +799,7 @@ const ProfilesPage = () => (
 const BTSPage = () => {
   const [modal, setModal] = useState(null);
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: FONT }}>
+    <div style={{ minHeight: '100vh', background: 'transparent', fontFamily: FONT }}>
       {modal && <VideoModal src={modal.src} title={modal.title} onClose={() => setModal(null)} />}
 
       <section className="page-header-pad" style={{ textAlign: 'center', borderBottom: `3px solid ${C.yellow}`, background: C.blue }}>
@@ -671,7 +815,7 @@ const BTSPage = () => {
         <BTSCard clip={btsClip} onPlay={c => setModal({ src: VIDEOS.bts, title: c.title })} />
       </section>
 
-      <section style={{ background: C.bgSection, borderTop: `3px solid ${C.yellowDark}` }}>
+      <section style={{ background: 'rgba(237,233,225,0.55)', borderTop: `3px solid ${C.yellowDark}` }}>
         <div className="section-pad" style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <p style={{ color: C.blue, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '8px' }}>From the Team</p>
           <h3 style={{ color: C.ink, fontSize: '24px', fontWeight: 900, marginBottom: '28px' }}>Production Notes</h3>
@@ -729,7 +873,7 @@ const Footer = ({ setCurrentPage }) => (
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
   return (
-    <div style={{ minHeight: '100vh', background: C.bg }}>
+    <div style={{ minHeight: '100vh', background: 'transparent' }}>
       <GlobalStyles />
       <NewsTicker />
       <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
