@@ -61,7 +61,7 @@ const characters = [
 ];
 
 const episodes = [
-  { number: 10, title: "The Library Lockdown", description: "The group accidentally gets locked in the library overnight and discovers the conspiracy was real all along.", color: "#1D4ED8", image: "/x3.jpg" },
+  { number: 10, title: "The Library Lockdown", description: "The group accidentally gets locked in the library overnight and discovers the conspiracy was real all along.", color: "#1D4ED8", image: "/3.jpg" },
   { number: 11, title: "Cafeteria Chronicles", description: "Sophie runs for student council while Lewis becomes unexpectedly invested in how he's perceived outside the study group, leading to some questionably uncharacteristic choices.", color: "#065F46", image: "/x2.png" },
   { number: 12, title: "Final Draft", description: "The season finale. The final presentation. The ultimate chaos. Everything goes wrong in the best way possible.", color: "#6D28D9", featured: true, image: "/x1.png" }
 ];
@@ -138,17 +138,50 @@ const GlobalStyles = () => (
       padding-left: calc(88px + 16px) !important;
     }
 
-    @media (max-width: 768px) {
-      #root { padding-left: 56px; }
-      nav, .ticker-bar { margin-left: -56px; padding-left: 56px; }
-      footer { margin-left: -56px; padding-left: calc(56px + 16px) !important; }
+    /* On smaller screens, remove the margin gutter — no padding, no red line */
+    @media (max-width: 1024px) {
+      #root { padding-left: 0; }
+      nav, .ticker-bar { margin-left: 0; padding-left: 0; }
+      footer { margin-left: 0; padding-left: 16px !important; }
+      body {
+        background-image:
+          repeating-linear-gradient(
+            to bottom,
+            transparent,
+            transparent 31px,
+            rgba(100,130,200,0.12) 31px,
+            rgba(100,130,200,0.12) 32px
+          );
+      }
     }
 
-    @media (max-width: 480px) {
-      #root { padding-left: 44px; }
-      nav, .ticker-bar { margin-left: -44px; padding-left: 44px; }
-      footer { margin-left: -44px; padding-left: calc(44px + 16px) !important; }
+    /* Social dropdown panel */
+    .social-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: ${C.white};
+      border: 2px solid ${C.blueMid};
+      border-radius: 10px;
+      padding: 8px;
+      box-shadow: 4px 4px 0 ${C.blueMid};
+      gap: 6px;
+      flex-direction: column;
+      min-width: 160px;
+      z-index: 100;
     }
+    .social-dropdown.open { display: flex; }
+    .social-dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 7px;
+      border: none; background: transparent;
+      cursor: pointer; font-family: ${FONT};
+      font-size: 13px; font-weight: 700;
+      color: ${C.body}; width: 100%; text-align: left;
+      transition: background 0.12s;
+    }
+    .social-dropdown-item:hover { background: ${C.blueLight}; color: ${C.blue}; }
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
@@ -204,8 +237,9 @@ const GlobalStyles = () => (
       .nav-tab-label { display: none; }
       .nav-tabs { gap: 2px; }
       .nav-socials { display: none !important; }
-      .hero-grid { grid-template-columns: 1fr; gap: 32px; padding: 48px 16px 56px; }
-      .hero-title { font-size: 48px; }
+      .nav-social-burger { display: flex !important; }
+      .hero-grid { grid-template-columns: 1fr; gap: 28px; padding: 40px 16px 48px; }
+      .hero-title { font-size: 52px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .stats-cell:nth-child(2) { border-right: none; }
       .stats-cell:nth-child(3) { border-right: 2px solid ${C.yellowDark}; }
@@ -214,17 +248,18 @@ const GlobalStyles = () => (
       .characters-grid { grid-template-columns: 1fr; }
       .quotes-grid { grid-template-columns: 1fr; }
       .prod-notes-grid { grid-template-columns: 1fr; gap: 12px; }
-      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
-      .section-pad { padding: 48px 16px; }
-      .section-pad-sm { padding: 40px 16px; }
-      .page-header-pad { padding: 48px 16px 40px; }
-      .page-header-title { font-size: 36px; }
-      .bts-single { padding: 40px 16px 56px; }
-      .dysfunction-box { padding: 28px 20px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .section-pad { padding: 44px 14px; }
+      .section-pad-sm { padding: 36px 14px; }
+      .page-header-pad { padding: 44px 14px 36px; }
+      .page-header-title { font-size: 34px; }
+      .bts-single { padding: 36px 14px 52px; }
+      .dysfunction-box { padding: 24px 18px; }
     }
     @media (max-width: 480px) {
-      .hero-title { font-size: 36px; }
-      .page-header-title { font-size: 30px; }
+      .hero-title { font-size: 42px; }
+      .page-header-title { font-size: 28px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
   `}</style>
 );
@@ -337,12 +372,42 @@ const StatsCounter = ({ end, label, icon: Icon }) => {
 };
 
 // ─── NAVBAR ───────────────────────────────────────────────────────────────────
+const SOCIALS = [
+  {
+    title: 'Instagram', color: '#E1306C',
+    icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+  },
+  {
+    title: 'TikTok', color: '#010101',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
+  },
+  {
+    title: 'YouTube', color: '#FF0000',
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+  },
+  {
+    title: 'X / Twitter', color: '#000000',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  },
+];
+
 const Navbar = ({ currentPage, setCurrentPage }) => {
+  const [socialOpen, setSocialOpen] = useState(false);
+  const socialRef = useRef(null);
   const tabs = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'profiles', label: 'Characters', icon: Users },
     { id: 'bts', label: 'Behind the Scenes', icon: Camera }
   ];
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (socialRef.current && !socialRef.current.contains(e.target)) setSocialOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   return (
     <nav style={{ background: C.white, borderBottom: `3px solid ${C.yellow}`, position: 'sticky', top: 0, zIndex: 40, fontFamily: FONT }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '62px' }}>
@@ -365,73 +430,54 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Social icons */}
+
+          {/* Desktop social icons */}
           <div className="nav-socials" style={{ display: 'flex', alignItems: 'center', gap: '4px', borderRight: `2px solid ${C.blueMid}`, paddingRight: '10px' }}>
-            {[
-              {
-                title: 'Instagram', color: '#E1306C',
-                icon: (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                  </svg>
-                )
-              },
-              {
-                title: 'TikTok', color: '#010101',
-                icon: (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
-                  </svg>
-                )
-              },
-              {
-                title: 'YouTube', color: '#FF0000',
-                icon: (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
-                  </svg>
-                )
-              },
-              {
-                title: 'X / Twitter', color: '#000000',
-                icon: (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                )
-              },
-            ].map(({ title, color, icon }) => (
+            {SOCIALS.map(({ title, color, icon }) => (
               <button key={title} title={title}
-                style={{
-                  width: '30px', height: '30px', borderRadius: '7px',
-                  border: `2px solid ${C.blueMid}`, background: 'transparent',
-                  color: C.muted,
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.15s', flexShrink: 0, padding: 0,
-                }}
+                style={{ width: '30px', height: '30px', borderRadius: '7px', border: `2px solid ${C.blueMid}`, background: 'transparent', color: C.muted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', flexShrink: 0, padding: 0 }}
                 onMouseEnter={e => { e.currentTarget.style.background = color; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = color; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = C.muted; e.currentTarget.style.borderColor = C.blueMid; }}
               >{icon}</button>
             ))}
           </div>
+
+          {/* Mobile social burger — hidden on desktop via CSS */}
+          <div ref={socialRef} className="nav-social-burger" style={{ display: 'none', position: 'relative' }}>
+            <button
+              onClick={() => setSocialOpen(o => !o)}
+              style={{ width: '34px', height: '34px', borderRadius: '8px', border: `2px solid ${socialOpen ? C.blue : C.blueMid}`, background: socialOpen ? C.blueLight : 'transparent', color: socialOpen ? C.blue : C.muted, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px', padding: '7px', transition: 'all 0.15s' }}
+              aria-label="Social media links"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </button>
+            <div className={`social-dropdown${socialOpen ? ' open' : ''}`}>
+              {SOCIALS.map(({ title, color, icon }) => (
+                <button key={title} className="social-dropdown-item"
+                  onMouseEnter={e => { e.currentTarget.style.color = color; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = C.body; }}
+                >
+                  <span style={{ color, display: 'flex', alignItems: 'center', flexShrink: 0 }}>{icon}</span>
+                  {title}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Nav tabs */}
           <div className="nav-tabs">
             {tabs.map(({ id, label, icon: Icon }) => (
               <button key={id} onClick={() => setCurrentPage(id)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px',
-                  borderRadius: '8px', border: currentPage === id ? `2px solid ${C.blue}` : '2px solid transparent',
-                  cursor: 'pointer', fontWeight: 700, fontSize: '13px', fontFamily: FONT,
-                  transition: 'all 0.15s',
-                  background: currentPage === id ? C.blueLight : 'transparent',
-                  color: currentPage === id ? C.blue : C.muted,
-                }}>
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: currentPage === id ? `2px solid ${C.blue}` : '2px solid transparent', cursor: 'pointer', fontWeight: 700, fontSize: '13px', fontFamily: FONT, transition: 'all 0.15s', background: currentPage === id ? C.blueLight : 'transparent', color: currentPage === id ? C.blue : C.muted }}>
                 <Icon size={15} />
                 <span className="nav-tab-label">{label}</span>
               </button>
             ))}
           </div>
+
         </div>
       </div>
     </nav>
