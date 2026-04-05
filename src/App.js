@@ -81,10 +81,30 @@ const VIDEOS = {
   bts:  'https://vimeo.com/1176014881?share=copy&fl=sv&fe=ci',
 };
 
-// ── Thumbnail image paths ────────────────────────────────────────────────────
-const THUMBNAILS = {
-  main: '/thumbnail-main.jpg',
-  bts:  '/thumbnail-bts.jpg',
+// Extract numeric Vimeo ID from a URL
+const getVimeoId = (url) => url.replace(/.*vimeo\.com\//, '').replace(/[^0-9]/g, '');
+
+// ── Custom hook: fetch Vimeo thumbnail via oEmbed API ─────────────────────────
+// Vimeo's oEmbed endpoint is public and CORS-enabled — no API key required.
+// The returned thumbnail_url looks like: https://i.vimeocdn.com/video/123456789_640x360.jpg
+// We swap the _WxH suffix for _1280 to get a higher-resolution image.
+const useVimeoThumb = (videoUrl) => {
+  const [thumb, setThumb] = useState(null);
+  useEffect(() => {
+    if (!videoUrl) return;
+    const id = getVimeoId(videoUrl);
+    if (!id) return;
+    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${id}&width=1280`)
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => {
+        if (!data.thumbnail_url) return;
+        // Replace any _NNNxNNN or _NNN size suffix before the file extension
+        const hiRes = data.thumbnail_url.replace(/(_\d+x\d+|_\d+)(\.\w+)$/, '_1280$2');
+        setThumb(hiRes);
+      })
+      .catch(() => {});
+  }, [videoUrl]);
+  return thumb;
 };
 
 // ─── GLOBAL STYLES ────────────────────────────────────────────────────────────
@@ -107,7 +127,6 @@ const GlobalStyles = () => (
       background-attachment: fixed;
     }
 
-    /* Noise overlay — SVG feTurbulence rendered as a fixed pseudo-element */
     body::after {
       content: '';
       position: fixed;
@@ -120,25 +139,10 @@ const GlobalStyles = () => (
       background-size: 300px 300px;
     }
 
-    /* Push all content to the right of the margin line */
-    #root {
-      padding-left: 88px;
-    }
+    #root { padding-left: 88px; }
+    nav, .ticker-bar { margin-left: -88px; padding-left: 88px; }
+    footer { margin-left: -88px; padding-left: calc(88px + 16px) !important; }
 
-    /* Sticky nav and news ticker span the full width including the margin gutter,
-       but their inner content still starts after the margin */
-    nav, .ticker-bar {
-      margin-left: -88px;
-      padding-left: 88px;
-    }
-
-    /* Footer spans full width too */
-    footer {
-      margin-left: -88px;
-      padding-left: calc(88px + 16px) !important;
-    }
-
-    /* On smaller screens, remove the margin gutter — no padding, no red line */
     @media (max-width: 1024px) {
       #root { padding-left: 0; }
       nav, .ticker-bar { margin-left: 0; padding-left: 0; }
@@ -155,36 +159,24 @@ const GlobalStyles = () => (
       }
     }
 
-    /* Social dropdown panel */
     .social-dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      background: ${C.white};
-      border: 2px solid ${C.blueMid};
-      border-radius: 10px;
-      padding: 8px;
-      box-shadow: 4px 4px 0 ${C.blueMid};
-      gap: 6px;
-      flex-direction: column;
-      min-width: 160px;
-      z-index: 100;
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      background: ${C.white}; border: 2px solid ${C.blueMid}; border-radius: 10px;
+      padding: 8px; box-shadow: 4px 4px 0 ${C.blueMid}; gap: 6px;
+      flex-direction: column; min-width: 160px; z-index: 100;
     }
     .social-dropdown.open { display: flex; }
     .social-dropdown-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 10px; border-radius: 7px;
-      border: none; background: transparent;
-      cursor: pointer; font-family: ${FONT};
-      font-size: 13px; font-weight: 700;
-      color: ${C.body}; width: 100%; text-align: left;
-      transition: background 0.12s;
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+      border-radius: 7px; border: none; background: transparent; cursor: pointer;
+      font-family: ${FONT}; font-size: 13px; font-weight: 700; color: ${C.body};
+      width: 100%; text-align: left; transition: background 0.12s;
     }
     .social-dropdown-item:hover { background: ${C.blueLight}; color: ${C.blue}; }
 
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes thumbFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .nav-tabs { display: flex; align-items: center; gap: 4px; }
     .nav-tab-label { display: inline; }
@@ -212,9 +204,8 @@ const GlobalStyles = () => (
 
     .btn-yellow {
       display: inline-flex; align-items: center; gap: 9px;
-      background: ${C.yellow}; color: ${C.ink};
-      border: 2px solid ${C.yellowDark}; border-radius: 10px;
-      padding: 13px 22px; font-weight: 800; font-size: 14px;
+      background: ${C.yellow}; color: ${C.ink}; border: 2px solid ${C.yellowDark};
+      border-radius: 10px; padding: 13px 22px; font-weight: 800; font-size: 14px;
       cursor: pointer; transition: all 0.15s; font-family: ${FONT};
       box-shadow: 3px 3px 0 ${C.yellowDark};
     }
@@ -222,9 +213,8 @@ const GlobalStyles = () => (
 
     .btn-outline {
       display: inline-flex; align-items: center; gap: 9px;
-      background: transparent; color: ${C.blue};
-      border: 2px solid ${C.blue}; border-radius: 10px;
-      padding: 13px 22px; font-weight: 700; font-size: 14px;
+      background: transparent; color: ${C.blue}; border: 2px solid ${C.blue};
+      border-radius: 10px; padding: 13px 22px; font-weight: 700; font-size: 14px;
       cursor: pointer; transition: all 0.15s; font-family: ${FONT};
       box-shadow: 3px 3px 0 ${C.blue};
     }
@@ -272,12 +262,10 @@ const VideoModal = ({ src, title, onClose }) => {
     return () => window.removeEventListener('keydown', h);
   }, [onClose]);
 
-  const isGoogleDrive = src && src.includes('drive.google.com');
   const isVimeo = src && src.includes('vimeo.com');
-
   const getEmbedSrc = () => {
     if (isVimeo) {
-      const id = src.replace(/.*vimeo\.com\//, '').replace(/[^0-9]/g, '');
+      const id = getVimeoId(src);
       return `https://player.vimeo.com/video/${id}?autoplay=1&title=0&byline=0&portrait=0`;
     }
     return src;
@@ -293,7 +281,7 @@ const VideoModal = ({ src, title, onClose }) => {
           </button>
         </div>
         <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', borderRadius: '12px', overflow: 'hidden', boxShadow: `0 40px 100px rgba(0,0,0,0.6), 6px 6px 0 ${C.yellow}`, border: `3px solid ${C.yellow}` }}>
-          {(isGoogleDrive || isVimeo) ? (
+          {isVimeo ? (
             <iframe
               src={getEmbedSrc()}
               title={title || 'Video player'}
@@ -302,12 +290,7 @@ const VideoModal = ({ src, title, onClose }) => {
               allowFullScreen
             />
           ) : (
-            <video
-              src={src}
-              controls
-              autoPlay
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#000' }}
-            >
+            <video src={src} controls autoPlay style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#000' }}>
               Your browser does not support HTML5 video.
             </video>
           )}
@@ -416,10 +399,7 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
             src="/logo.png"
             alt="Group Project logo"
             style={{ height: '40px', width: 'auto', display: 'block', flexShrink: 0 }}
-            onError={e => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextSibling.style.display = 'flex';
-            }}
+            onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex'; }}
           />
           <div style={{ width: '34px', height: '34px', background: C.blue, borderRadius: '6px', border: `2px solid ${C.ink}`, alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `2px 2px 0 ${C.ink}`, display: 'none' }}>
             <span style={{ color: C.white, fontWeight: 900, fontSize: '11px' }}>GP</span>
@@ -430,8 +410,6 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-
-          {/* Desktop social icons */}
           <div className="nav-socials" style={{ display: 'flex', alignItems: 'center', gap: '4px', borderRight: `2px solid ${C.blueMid}`, paddingRight: '10px' }}>
             {SOCIALS.map(({ title, color, icon }) => (
               <button key={title} title={title}
@@ -441,8 +419,6 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
               >{icon}</button>
             ))}
           </div>
-
-          {/* Mobile social burger — hidden on desktop via CSS */}
           <div ref={socialRef} className="nav-social-burger" style={{ display: 'none', position: 'relative' }}>
             <button
               onClick={() => setSocialOpen(o => !o)}
@@ -466,8 +442,6 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
               ))}
             </div>
           </div>
-
-          {/* Nav tabs */}
           <div className="nav-tabs">
             {tabs.map(({ id, label, icon: Icon }) => (
               <button key={id} onClick={() => setCurrentPage(id)}
@@ -477,7 +451,6 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
               </button>
             ))}
           </div>
-
         </div>
       </div>
     </nav>
@@ -492,16 +465,10 @@ const EpisodeCard = ({ ep }) => {
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="card-lift"
       style={{ background: C.white, border: `2px solid ${hovered ? C.blue : C.blueMid}`, borderRadius: '14px', overflow: 'hidden', boxShadow: hovered ? `5px 5px 0 ${C.blue}` : `3px 3px 0 ${C.blueMid}`, position: 'relative', display: 'flex', flexDirection: 'column' }}>
       {ep.featured && <div style={{ position: 'absolute', top: '12px', right: '12px', background: C.yellow, color: C.ink, fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '100px', letterSpacing: '0.1em', zIndex: 3, border: `1px solid ${C.yellowDark}` }}>FINALE</div>}
-
-      {/* Thumbnail */}
       <div style={{ position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
         {!imgError ? (
-          <img
-            src={ep.image}
-            alt={ep.title}
-            onError={() => setImgError(true)}
-            style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease', transform: hovered ? 'scale(1.04)' : 'scale(1)' }}
-          />
+          <img src={ep.image} alt={ep.title} onError={() => setImgError(true)}
+            style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease', transform: hovered ? 'scale(1.04)' : 'scale(1)' }} />
         ) : (
           <div style={{ width: '100%', aspectRatio: '16/9', background: `linear-gradient(135deg, ${ep.color} 0%, ${ep.color}99 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Film size={36} color="rgba(255,255,255,0.25)" />
@@ -512,7 +479,6 @@ const EpisodeCard = ({ ep }) => {
           <span style={{ color: 'white', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', fontFamily: FONT }}>EP. {ep.number}</span>
         </div>
       </div>
-
       <div style={{ padding: '16px 18px 20px' }}>
         <h4 style={{ color: C.ink, fontWeight: 800, fontSize: '15px', marginBottom: '7px', fontFamily: FONT }}>{ep.title}</h4>
         <p style={{ color: C.body, fontSize: '13px', lineHeight: '1.65', fontFamily: FONT }}>{ep.description}</p>
@@ -563,48 +529,77 @@ const AnnouncementCard = ({ title, date, category, description, accent }) => (
   </div>
 );
 
-// ─── HERO THUMBNAIL ───────────────────────────────────────────────────────────
-const HeroThumb = ({ onClick }) => {
-  const [hovered, setHovered] = useState(false);
-  const [imgError, setImgError] = useState(false);
+// ─── VIMEO THUMBNAIL AREA ─────────────────────────────────────────────────────
+// Fetches the Vimeo oEmbed thumbnail and renders it behind a play button overlay.
+// Falls back to a blue gradient while loading or if the video is private/unavailable.
+const VimeoThumbArea = ({ videoUrl, onClick, hovered, height, badge, children }) => {
+  const thumb = useVimeoThumb(videoUrl);
   return (
     <div
       onClick={onClick}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: onClick ? 'pointer' : 'default',
+        background: `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`,
+        ...(height ? { height } : { aspectRatio: '16/9' }),
+      }}
+    >
+      {/* Vimeo thumbnail image — renders on top of gradient, beneath the dark overlay */}
+      {thumb && (
+        <img
+          src={thumb}
+          alt=""
+          onError={e => { e.currentTarget.style.display = 'none'; }}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover', display: 'block',
+            zIndex: 0,
+            animation: 'thumbFadeIn 0.5s ease forwards',
+          }}
+        />
+      )}
+
+      {/* Dark overlay so play button stays legible */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(14,27,46,0.45)', zIndex: 1 }} />
+
+      {/* Optional top-left badge (e.g. "SEASON FINALE", "PRODUCTION") */}
+      {badge && (
+        <div style={{ position: 'absolute', top: '12px', left: '12px', background: C.yellow, border: `2px solid ${C.yellowDark}`, borderRadius: '6px', padding: '3px 10px', zIndex: 3 }}>
+          <span style={{ color: C.ink, fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', fontFamily: FONT }}>{badge}</span>
+        </div>
+      )}
+
+      {/* Centred content — play button, labels, etc. passed as children */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// ─── HERO THUMBNAIL ───────────────────────────────────────────────────────────
+const HeroThumb = ({ onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        aspectRatio: '16/9',
-        background: imgError
-          ? `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`
-          : undefined,
-        backgroundImage: !imgError ? `url(${THUMBNAILS.main})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        borderRadius: '16px',
-        overflow: 'hidden',
-        cursor: 'pointer',
-        position: 'relative',
+        borderRadius: '16px', overflow: 'hidden', cursor: 'pointer',
         boxShadow: hovered ? `11px 11px 0 ${C.ink}` : `8px 8px 0 ${C.ink}`,
-        border: `3px solid ${C.ink}`,
-        transition: 'all 0.2s',
+        border: `3px solid ${C.ink}`, transition: 'all 0.2s',
         transform: hovered ? 'translate(-3px,-3px)' : 'translate(0,0)',
-      }}>
-      {/* Hidden img tag to detect load errors */}
-      <img
-        src={THUMBNAILS.main}
-        alt=""
-        onError={() => setImgError(true)}
-        style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
-      />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(14,27,46,0.42)' }} />
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+      }}
+    >
+      <VimeoThumbArea videoUrl={VIDEOS.main} onClick={onClick} hovered={hovered} badge="SEASON FINALE">
         <div style={{
           width: '68px', height: '68px', borderRadius: '50%',
           background: C.yellow, border: `3px solid ${C.yellowDark}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 0 0 8px rgba(245,200,0,0.2)',
-          transition: 'transform 0.2s',
-          transform: hovered ? 'scale(1.1)' : 'scale(1)',
+          transition: 'transform 0.2s', transform: hovered ? 'scale(1.1)' : 'scale(1)',
         }}>
           <Play size={26} fill={C.ink} color={C.ink} style={{ marginLeft: '4px' }} />
         </div>
@@ -612,8 +607,7 @@ const HeroThumb = ({ onClick }) => {
           <p style={{ color: 'white', fontWeight: 800, fontSize: '16px', fontFamily: FONT }}>Episode 12 — Final Draft</p>
           <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', marginTop: '4px', fontFamily: FONT }}>Season Finale</p>
         </div>
-      </div>
-      <div style={{ position: 'absolute', top: '12px', left: '12px', background: C.yellow, color: C.ink, fontSize: '10px', fontWeight: 900, padding: '5px 12px', borderRadius: '6px', letterSpacing: '0.08em', fontFamily: FONT, border: `2px solid ${C.yellowDark}`, zIndex: 2 }}>SEASON FINALE</div>
+      </VimeoThumbArea>
     </div>
   );
 };
@@ -621,49 +615,21 @@ const HeroThumb = ({ onClick }) => {
 // ─── BTS CARD ─────────────────────────────────────────────────────────────────
 const BTSCard = ({ clip, onPlay }) => {
   const [hovered, setHovered] = useState(false);
-  const [imgError, setImgError] = useState(false);
   return (
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="card-lift"
       style={{ background: C.white, border: `2px solid ${hovered ? C.blue : C.blueMid}`, borderRadius: '16px', overflow: 'hidden', boxShadow: hovered ? `5px 5px 0 ${C.blue}` : `3px 3px 0 ${C.blueMid}` }}>
-      <div
-        onClick={() => onPlay(clip)}
-        style={{
-          height: '280px',
-          background: imgError
-            ? `linear-gradient(135deg, ${C.blue} 0%, ${C.blueDark} 100%)`
-            : undefined,
-          backgroundImage: !imgError ? `url(${THUMBNAILS.bts})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+      <VimeoThumbArea videoUrl={VIDEOS.bts} onClick={() => onPlay(clip)} hovered={hovered} height="280px" badge={clip.tag}>
+        <div style={{
+          width: '60px', height: '60px', borderRadius: '50%',
+          background: C.yellow, border: `3px solid ${C.yellowDark}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', position: 'relative', overflow: 'hidden',
+          boxShadow: `0 0 0 6px rgba(245,200,0,0.2)`,
+          transition: 'transform 0.2s', transform: hovered ? 'scale(1.1)' : 'scale(1)',
         }}>
-        {/* Hidden img tag to detect load errors */}
-        <img
-          src={THUMBNAILS.bts}
-          alt=""
-          onError={() => setImgError(true)}
-          style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
-        />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(14,27,46,0.48)' }} />
-        {imgError && <Film size={80} color="rgba(255,255,255,0.06)" style={{ position: 'absolute' }} />}
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '60px', height: '60px', borderRadius: '50%',
-            background: C.yellow, border: `3px solid ${C.yellowDark}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: `0 0 0 6px rgba(245,200,0,0.2)`,
-            transition: 'transform 0.2s',
-            transform: hovered ? 'scale(1.1)' : 'scale(1)',
-          }}>
-            <Play size={22} fill={C.ink} color={C.ink} style={{ marginLeft: '3px' }} />
-          </div>
-          <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontFamily: FONT, fontWeight: 600 }}>{clip.duration}</span>
+          <Play size={22} fill={C.ink} color={C.ink} style={{ marginLeft: '3px' }} />
         </div>
-        <div style={{ position: 'absolute', top: '14px', left: '14px', background: C.yellow, border: `2px solid ${C.yellowDark}`, borderRadius: '6px', padding: '3px 10px', zIndex: 2 }}>
-          <span style={{ color: C.ink, fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', fontFamily: FONT }}>{clip.tag}</span>
-        </div>
-      </div>
+        <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontFamily: FONT, fontWeight: 600 }}>{clip.duration}</span>
+      </VimeoThumbArea>
       <div style={{ padding: '20px 22px 24px' }}>
         <h4 style={{ color: C.ink, fontWeight: 900, fontSize: '18px', marginBottom: '4px', fontFamily: FONT }}>{clip.title}</h4>
         <p style={{ color: C.blue, fontSize: '13px', fontWeight: 700, letterSpacing: '0.03em', marginBottom: '12px', fontFamily: FONT }}>{clip.subtitle}</p>
@@ -680,7 +646,6 @@ const HomePage = ({ setCurrentPage }) => {
     <div style={{ minHeight: '100vh', background: 'transparent', fontFamily: FONT }}>
       {modal && <VideoModal src={modal.src} title={modal.title} onClose={() => setModal(null)} />}
 
-      {/* Hero */}
       <section style={{ background: 'transparent', borderBottom: `3px solid ${C.yellow}` }}>
         <div className="hero-grid">
           <div>
@@ -725,12 +690,10 @@ if none of them are willing to admit it.
               </button>
             </div>
           </div>
-
           <HeroThumb onClick={() => setModal({ src: VIDEOS.main, title: 'Episode 12 — Final Draft' })} />
         </div>
       </section>
 
-      {/* Stats */}
       <section style={{ borderBottom: `3px solid ${C.ink}`, background: C.yellow }}>
         <div className="stats-grid">
           {[
@@ -739,14 +702,11 @@ if none of them are willing to admit it.
             { end: 2500, label: 'Viewers', icon: Award },
             { end: 95, label: 'Approval Rating', icon: Bell }
           ].map((s, i) => (
-            <div key={i} className="stats-cell">
-              <StatsCounter {...s} />
-            </div>
+            <div key={i} className="stats-cell"><StatsCounter {...s} /></div>
           ))}
         </div>
       </section>
 
-      {/* Finale synopsis */}
       <section className="section-pad" style={{ borderBottom: `2px solid ${C.blueMid}`, background: 'transparent' }}>
         <div style={{ maxWidth: '680px', margin: '0 auto', textAlign: 'center' }}>
           <p style={{ color: C.blue, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '12px', fontFamily: FONT }}>Season Finale</p>
@@ -755,7 +715,6 @@ if none of them are willing to admit it.
         </div>
       </section>
 
-      {/* Episodes */}
       <section className="section-pad" style={{ borderBottom: `2px solid ${C.blueMid}`, background: 'rgba(237,233,225,0.55)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '32px', gap: '16px' }}>
@@ -771,7 +730,6 @@ if none of them are willing to admit it.
         </div>
       </section>
 
-      {/* Announcements */}
       <section className="section-pad" style={{ background: 'transparent' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <p style={{ color: C.blue, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '8px', fontFamily: FONT }}>Updates</p>
@@ -796,7 +754,6 @@ const ProfilesPage = () => (
       <h2 className="page-header-title" style={{ color: C.ink, fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '16px' }}>The Study Group</h2>
       <p style={{ color: C.ink, fontSize: '15px', maxWidth: '500px', margin: '0 auto', lineHeight: '1.7', opacity: 0.75 }}>Three students who came together to improve their grades. Instead, they created the most chaotic study group in school history.</p>
     </section>
-
     <section className="section-pad" style={{ background: 'transparent' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         <div className="characters-grid">
@@ -804,7 +761,6 @@ const ProfilesPage = () => (
         </div>
       </div>
     </section>
-
     <section style={{ padding: '0 16px 60px', background: 'transparent' }}>
       <div style={{ maxWidth: '860px', margin: '0 auto', background: C.yellowLight, border: `3px solid ${C.yellowDark}`, borderRadius: '16px', boxShadow: `6px 6px 0 ${C.yellowDark}` }}>
         <div className="dysfunction-box">
@@ -819,7 +775,6 @@ const ProfilesPage = () => (
         </div>
       </div>
     </section>
-
     <section className="section-pad" style={{ paddingTop: 0, background: 'rgba(237,233,225,0.55)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         <h3 style={{ color: C.ink, fontSize: '24px', fontWeight: 900, textAlign: 'center', marginBottom: '28px' }}>Character Quotes</h3>
@@ -847,7 +802,6 @@ const BTSPage = () => {
   return (
     <div style={{ minHeight: '100vh', background: 'transparent', fontFamily: FONT }}>
       {modal && <VideoModal src={modal.src} title={modal.title} onClose={() => setModal(null)} />}
-
       <section className="page-header-pad" style={{ textAlign: 'center', borderBottom: `3px solid ${C.yellow}`, background: C.blue }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: C.yellow, border: `2px solid ${C.yellowDark}`, borderRadius: '100px', padding: '5px 14px', marginBottom: '18px', boxShadow: `2px 2px 0 ${C.yellowDark}` }}>
           <Camera size={13} color={C.ink} />
@@ -856,11 +810,9 @@ const BTSPage = () => {
         <h2 className="page-header-title" style={{ color: 'white', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '16px' }}>Behind the Scenes</h2>
         <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '15px', maxWidth: '480px', margin: '0 auto', lineHeight: '1.7' }}>Go behind the camera with the cast as they talk about their time filming Group Project.</p>
       </section>
-
       <section className="bts-single">
         <BTSCard clip={btsClip} onPlay={c => setModal({ src: VIDEOS.bts, title: c.title })} />
       </section>
-
       <section style={{ background: 'rgba(237,233,225,0.55)', borderTop: `3px solid ${C.yellowDark}` }}>
         <div className="section-pad" style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <p style={{ color: C.blue, fontSize: '11px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: '8px' }}>From the Team</p>
